@@ -47,7 +47,7 @@ with col3:
 with col4:
     st.write("**Details View**")
 
-# Display each workstation row with a link to the details page
+# Display each workstation row with a button to the details page
 for index, row in df.iterrows():
     col1, col2, col3, col4 = st.columns([2, 2, 2, 1])
     with col1:
@@ -57,7 +57,9 @@ for index, row in df.iterrows():
     with col3:
         st.write(row["Storage_Status"])
     with col4:
-        st.markdown(f"[View](workstation_details?workstation={row['PC_Name']})")
+        if st.button("View", key=f"view_{row['PC_Name']}"):
+            st.session_state.selected_workstation = row['PC_Name']
+            st.switch_page("pages/workstation_details.py")
 
 # Section 3: Charts for connected vs not connected percentages
 # This section calculates and displays pie and bar charts showing the percentage of connected and not connected workstations.
