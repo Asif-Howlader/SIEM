@@ -13,7 +13,7 @@ import re
 import sys
 
 # Configuration
-SIEM_SERVER_URL = "http://192.168.0.184:5000"  # Change to your SIEM server IP if remote
+SIEM_SERVER_URL = "http://localhost:5000"  # Change to your SIEM server IP if remote
 
 def get_system_info():
     """

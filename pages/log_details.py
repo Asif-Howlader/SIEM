@@ -1,10 +1,9 @@
 import streamlit as st
 import pandas as pd
 
-# Get query parameters
-query_params = st.query_params
-log_id = query_params.get("log_id", None)
-workstation_name = query_params.get("workstation", None)
+# Get from session state
+log_id = st.session_state.get("selected_log_id", None)
+workstation_name = st.session_state.get("selected_workstation", None)
 
 if log_id and workstation_name:
     st.title(f"Log Details for {workstation_name} - Event ID: {log_id}")

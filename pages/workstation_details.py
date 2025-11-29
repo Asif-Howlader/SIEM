@@ -28,10 +28,9 @@ except:
 # This converts the list to a pandas DataFrame for data manipulation.
 df = pd.DataFrame(workstations)
 
-# Get workstation name from query parameters
+# Get workstation name from session state
 # This retrieves the workstation name passed from the main dashboard.
-query_params = st.query_params
-workstation_name = query_params.get("workstation", None)
+workstation_name = st.session_state.get("selected_workstation", None)
 
 if workstation_name:
     # Find the workstation details
@@ -107,9 +106,40 @@ if workstation_name:
     logs_df = logs_df[logs_df["Source"].isin(["System"])]
     # Add Level column based on Event ID or Message
     logs_df["Level"] = logs_df["Event ID"].apply(lambda x: "Error" if int(x) % 3 == 0 else "Warning" if int(x) % 3 == 1 else "Information")
-    # Add links to log details
-    logs_df["Details"] = logs_df["Event ID"].apply(lambda x: f'<a href="log_details?workstation={workstation_name}&log_id={x}" target="_blank">View</a>')
-    st.write(logs_df.to_html(escape=False, index=False), unsafe_allow_html=True)
+
+    # Display table headers
+    col1, col2, col3, col4, col5, col6 = st.columns([2, 1, 1, 3, 1, 1])
+    with col1:
+        st.write("**Time**")
+    with col2:
+        st.write("**Source**")
+    with col3:
+        st.write("**Event ID**")
+    with col4:
+        st.write("**Message**")
+    with col5:
+        st.write("**Level**")
+    with col6:
+        st.write("**Details**")
+
+    # Display each log row with a details button
+    for index, log in logs_df.iterrows():
+        col1, col2, col3, col4, col5, col6 = st.columns([2, 1, 1, 3, 1, 1])
+        with col1:
+            st.write(log["Time"])
+        with col2:
+            st.write(log["Source"])
+        with col3:
+            st.write(log["Event ID"])
+        with col4:
+            st.write(log["Message"])
+        with col5:
+            st.write(log["Level"])
+        with col6:
+            if st.button("View", key=f"view_{log['Event ID']}_{index}"):
+                st.session_state.selected_log_id = log["Event ID"]
+                st.session_state.selected_workstation = workstation_name
+                st.switch_page("pages/log_details.py")
 
     # Disk space pie chart
     # This parses the storage status and creates a pie chart showing used and free disk space.
@@ -126,8 +156,9 @@ if workstation_name:
     ax.axis('equal')
     st.pyplot(fig)
 
-    # Back to dashboard link
-    # This provides a link to return to the main dashboard.
-    st.markdown("[Back to Dashboard](/)")
+    # Back to dashboard button
+    # This provides a button to return to the main dashboard.
+    if st.button("Back to Dashboard"):
+        st.switch_page("app.py")
 else:
     st.error("No workstation specified.")
